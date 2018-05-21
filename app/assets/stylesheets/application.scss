@@ -13,3 +13,10 @@
  *= require_tree .
  *= require_self
  */
+
+ @import "bootstrap";
+ @import url('https://fonts.googleapis.com/css?family=Dosis');
+
+ body {
+  font-family: 'Dosis', sans-serif;
+ }
