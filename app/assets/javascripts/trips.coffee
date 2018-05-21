@@ -13,7 +13,7 @@ $(document).ready =>
         return
       data: positionData
       success: (response) ->
-        console.log response
+        initMap response
         return
     return
 
@@ -34,4 +34,16 @@ $(document).ready =>
     formData = $(this).serialize()
     name = formData.split('=')[1]
     data = getLocation(name)
+    return
+
+  initMap = (location) ->
+    center = 
+      lat: Number location.lat
+      lng: Number location.long
+    map = new (google.maps.Map)(document.getElementById('map'),
+      zoom: 16
+      center: center)
+    marker = new (google.maps.Marker)(
+      position: center
+      map: map)
     return
