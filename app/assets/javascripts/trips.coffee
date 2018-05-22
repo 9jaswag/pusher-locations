@@ -3,6 +3,13 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 $(document).ready =>
+  makeNum = (arr) ->
+    arr.forEach (arr) ->
+      arr.lat = Number(arr.lat)
+      arr.lng = Number(arr.lng)
+      return
+    arr
+
   saveTrip = (positionData) ->
     token = $('meta[name="csrf-token"]').attr('content')
     $.ajax
@@ -13,8 +20,11 @@ $(document).ready =>
         return
       data: positionData
       success: (response) ->
+        # console.log response
         url = """#{window.location.protocol}//#{window.location.host}/trips/#{response.uuid}"""
-        initMap response
+        # initMap response.checkins[0]
+        checkins = makeNum response.checkins
+        updateMap checkins
         $('.name-form').addClass('collapse')
         $('.share-url').append """
           <h6 class="m-0 text-center">Hello <strong>#{response.name}</strong>, here's your location sharing link: <a href="#{url}">#{url}</a></h6>
@@ -29,7 +39,7 @@ $(document).ready =>
         timestamp = position.timestamp
         data =
           lat: coord.latitude,
-          long: coord.longitude,
+          lng: coord.longitude,
           name: name
         saveTrip data
     return
@@ -44,7 +54,7 @@ $(document).ready =>
   initMap = (location) ->
     center = 
       lat: Number location.lat
-      lng: Number location.long
+      lng: Number location.lng
     map = new (google.maps.Map)(document.getElementById('map'),
       zoom: 16
       center: center
@@ -54,16 +64,20 @@ $(document).ready =>
       map: map)
     return
 
-  updateMap = (location, newcoord) ->
+  updateMap = (checkins) ->
+    console.log checkins
     center = 
-      lat: Number location.lat
-      lng: Number location.long
+      lat: checkins[0].lat
+      lng: checkins[0].lng
     map = new (google.maps.Map)(document.getElementById('map'),
       zoom: 13
       center: center)
+    marker = new (google.maps.Marker)(
+      position: center
+      map: map)
 
     flightPath = new (google.maps.Polyline)(
-      path: [new google.maps.LatLng(location.lat, location.long), new google.maps.LatLng(newcoord.lat, newcoord.long)],
+      path: checkins,
       geodesic: true
       strokeColor: '#FF0000'
       strokeOpacity: 1.0
@@ -74,9 +88,9 @@ $(document).ready =>
   if location.pathname.startsWith('/trips')
     userLocation =
       lat: $('#lat').val(),
-      long: $('#long').val()
+      lng: $('#lng').val()
     initMap userLocation
     newLoc =
       lat: 6.571336,
-      long: 3.3694995
+      lng: 3.3694995
     updateMap(userLocation, newLoc)

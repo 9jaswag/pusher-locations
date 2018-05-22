@@ -7,7 +7,8 @@ class TripsController < ApplicationController
 
   def create
     @trip = Trip.new(trip_params)
-    render json: @trip if @trip.save
+    @trip.checkins.build(lat: params[:lat], lng: params[:lng])
+    render json: @trip.as_json if @trip.save
   end
 
   def show
@@ -19,6 +20,6 @@ class TripsController < ApplicationController
 
   private
     def trip_params
-      params.permit(:lat, :long, :name)
+      params.permit(:name)
     end
 end
