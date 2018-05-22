@@ -54,8 +54,29 @@ $(document).ready =>
       map: map)
     return
 
+  updateMap = (location, newcoord) ->
+    center = 
+      lat: Number location.lat
+      lng: Number location.long
+    map = new (google.maps.Map)(document.getElementById('map'),
+      zoom: 13
+      center: center)
+
+    flightPath = new (google.maps.Polyline)(
+      path: [new google.maps.LatLng(location.lat, location.long), new google.maps.LatLng(newcoord.lat, newcoord.long)],
+      geodesic: true
+      strokeColor: '#FF0000'
+      strokeOpacity: 1.0
+      strokeWeight: 2)
+    flightPath.setMap map
+    return
+
   if location.pathname.startsWith('/trips')
     userLocation =
       lat: $('#lat').val(),
       long: $('#long').val()
     initMap userLocation
+    newLoc =
+      lat: 6.571336,
+      long: 3.3694995
+    updateMap(userLocation, newLoc)
