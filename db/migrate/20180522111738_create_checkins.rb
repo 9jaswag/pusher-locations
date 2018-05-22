@@ -3,7 +3,7 @@ class CreateCheckins < ActiveRecord::Migration[5.1]
     create_table :checkins do |t|
       t.references :trip, foreign_key: true
       t.decimal :lat
-      t.decimal :long
+      t.decimal :lng
 
       t.timestamps
     end

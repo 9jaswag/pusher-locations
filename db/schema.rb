@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 20180522111738) do
   create_table "checkins", force: :cascade do |t|
     t.bigint "trip_id"
     t.decimal "lat"
-    t.decimal "long"
+    t.decimal "lng"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["trip_id"], name: "index_checkins_on_trip_id"
