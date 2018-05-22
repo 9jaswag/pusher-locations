@@ -13,7 +13,12 @@ $(document).ready =>
         return
       data: positionData
       success: (response) ->
+        url = """#{window.location.protocol}//#{window.location.host}/trips/#{response.uuid}"""
         initMap response
+        $('.name-form').addClass('collapse')
+        $('.share-url').append """
+          <h6 class="m-0 text-center">Hello <strong>#{response.name}</strong>, here's your location sharing link: <a href="#{url}">#{url}</a></h6>
+        """
         return
     return
 
@@ -47,3 +52,9 @@ $(document).ready =>
       position: center
       map: map)
     return
+
+  if location.pathname.startsWith('/trips')
+    userLocation =
+      lat: $('#lat').val(),
+      long: $('#long').val()
+    initMap userLocation
