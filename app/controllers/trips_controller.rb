@@ -14,6 +14,7 @@ class TripsController < ApplicationController
 
   def show
     @trip = Trip.find_by(uuid: params[:id])
+    # byebug
   end
 
   def update
