@@ -6,13 +6,7 @@ $(document).ready =>
   tripId = ''
   startingPoint = {}
 
-  makeNum = (arr) ->
-    arr.forEach (arr) ->
-      arr.lat = Number(arr.lat)
-      arr.lng = Number(arr.lng)
-      return
-    arr
-
+  <%# function for creating a new trip %>
   saveTrip = (positionData) ->
     token = $('meta[name="csrf-token"]').attr('content')
     $.ajax
@@ -25,7 +19,6 @@ $(document).ready =>
       success: (response) ->
         tripId = response.id
         url = """#{window.location.protocol}//#{window.location.host}/trips/#{response.uuid}"""
-        checkins = makeNum response.checkins
         initMap()
         $('.name-form').addClass('collapse')
         $('.share-url').append """
@@ -35,6 +28,7 @@ $(document).ready =>
         return
     return
 
+  <%# function for getting the user's location at the begining of the trip %>
   getLocation = (name) ->
     if navigator.geolocation
       navigator.geolocation.getCurrentPosition (position) ->
@@ -48,12 +42,13 @@ $(document).ready =>
         saveTrip data
     return
 
+  <%# function for rendering the map %>
   initMap = ->
     center = 
       lat: startingPoint.lat
       lng: startingPoint.lng
     map = new (google.maps.Map)(document.getElementById('map'),
-      zoom: 17
+      zoom: 13
       center: center
       disableDefaultUI: true)
     marker = new (google.maps.Marker)(
@@ -61,13 +56,13 @@ $(document).ready =>
       map: map)
     return
   
+  <%# function for updating the map with the user's current location %>
   updateMap = (checkin) ->
-    console.log 'updating map'
     center = 
       lat: startingPoint.lat
       lng: startingPoint.lng
     map = new (google.maps.Map)(document.getElementById('map'),
-      zoom: 17
+      zoom: 13
       center: center)
     marker = new (google.maps.Marker)(
       position: center
@@ -83,6 +78,7 @@ $(document).ready =>
     setTimeout(getCurrentLocation, 5000)
     return
 
+  <%# function for updating the database with the user's current location %>
   updateCurrentLocation = (tripData, id) ->
     token = $('meta[name="csrf-token"]').attr('content')
     $.ajax
@@ -96,8 +92,8 @@ $(document).ready =>
         return
     return
 
+  <%# function for finding the user's current location %>
   getCurrentLocation = ->
-    console.log 'getting current location'
     navigator.geolocation.getCurrentPosition (position) ->
       data =
         lat: position.coords.latitude,
@@ -106,6 +102,7 @@ $(document).ready =>
     return
 
 
+  <%# run this block of code if we're on the homepage %>
   unless location.pathname.startsWith('/trips')
     $('.name-form').on 'submit', (event) ->
       event.preventDefault()
@@ -114,6 +111,7 @@ $(document).ready =>
       data = getLocation(name)
       return
   
+  <%# run this code if we're on the trips page %>
   if location.pathname.startsWith('/trips')
     showLat = $('#lat').val()
     showLng = $('#lng').val()
@@ -123,7 +121,7 @@ $(document).ready =>
     startingPoint = data
     initMap()
 
-  Pusher.logToConsole = true
+  <%# subscribe Pusher client %>
   pusher = new Pusher('<%= ENV["PUSHER_KEY"] %>',
     cluster: '<%= ENV["PUSHER_CLUSTER"] %>'
     encrypted: true)
