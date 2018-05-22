@@ -10,19 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180521184112) do
+ActiveRecord::Schema.define(version: 20180522111738) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "trips", force: :cascade do |t|
-    t.decimal "long"
+  create_table "checkins", force: :cascade do |t|
+    t.bigint "trip_id"
     t.decimal "lat"
+    t.decimal "long"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_checkins_on_trip_id"
+  end
+
+  create_table "trips", force: :cascade do |t|
     t.string "name"
     t.string "uuid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["uuid"], name: "index_trips_on_uuid"
   end
 
+  add_foreign_key "checkins", "trips"
 end
