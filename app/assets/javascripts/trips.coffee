@@ -47,7 +47,8 @@ $(document).ready =>
       lng: Number location.long
     map = new (google.maps.Map)(document.getElementById('map'),
       zoom: 16
-      center: center)
+      center: center
+      disableDefaultUI: true)
     marker = new (google.maps.Marker)(
       position: center
       map: map)
