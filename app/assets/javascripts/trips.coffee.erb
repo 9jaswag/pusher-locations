@@ -100,7 +100,6 @@ $(document).ready =>
         return
       data: tripData
       success: (response) ->
-        updateMap response
         return
     return
 
@@ -113,8 +112,18 @@ $(document).ready =>
       updateCurrentLocation(data, tripId)
     return
 
+  Pusher.logToConsole = true
+  pusher = new Pusher('<%= ENV["PUSHER_KEY"] %>',
+    cluster: '<%= ENV["PUSHER_CLUSTER"] %>'
+    encrypted: true)
+  channel = pusher.subscribe('location')
+  channel.bind 'new', (data) ->
+    updateMap data
+    return
+  return
 
-  # if location.pathname.startsWith('/trips')
+
+  <%# # if location.pathname.startsWith('/trips')
   #   userLocation =
   #     lat: $('#lat').val(),
   #     lng: $('#lng').val()
@@ -122,4 +131,4 @@ $(document).ready =>
   #   newLoc =
   #     lat: 6.571336,
   #     lng: 3.3694995
-  #   updateMap(userLocation, newLoc)
+  #   updateMap(userLocation, newLoc) %>
