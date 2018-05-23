@@ -1,8 +1,8 @@
 class Checkin < ApplicationRecord
   belongs_to :trip
-  after_commit :notify_pusher, on: [:create]
+  after_create :notify_pusher
 
   def notify_pusher
-    Pusher.trigger('location', 'new', self.as_json)
+    Pusher.trigger('location', 'new', self.trip.as_json)
   end
 end
