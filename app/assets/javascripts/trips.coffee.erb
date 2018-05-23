@@ -6,6 +6,14 @@ $(document).ready =>
   tripId = ''
   startingPoint = {}
 
+  <%# function for converting coordinates to numbers %>
+  makeNum = (arr) ->
+    arr.forEach (arr) ->
+      arr.lat = Number(arr.lat)
+      arr.lng = Number(arr.lng)
+      return
+    arr
+
   <%# function for creating a new trip %>
   saveTrip = (positionData) ->
     token = $('meta[name="csrf-token"]').attr('content')
@@ -48,9 +56,8 @@ $(document).ready =>
       lat: startingPoint.lat
       lng: startingPoint.lng
     map = new (google.maps.Map)(document.getElementById('map'),
-      zoom: 13
-      center: center
-      disableDefaultUI: true)
+      zoom: 18
+      center: center)
     marker = new (google.maps.Marker)(
       position: center
       map: map)
@@ -58,24 +65,28 @@ $(document).ready =>
   
   <%# function for updating the map with the user's current location %>
   updateMap = (checkin) ->
+    console.log checkin
+    lastCheckin = checkin[checkin.length - 1]
     center = 
       lat: startingPoint.lat
       lng: startingPoint.lng
     map = new (google.maps.Map)(document.getElementById('map'),
-      zoom: 13
+      zoom: 18
       center: center)
     marker = new (google.maps.Marker)(
-      position: center
+      position: lastCheckin
       map: map)
 
     flightPath = new (google.maps.Polyline)(
-      path: [new google.maps.LatLng(startingPoint.lat, startingPoint.lng), new google.maps.LatLng(checkin.lat, checkin.lng)],
+      <%# path: [new google.maps.LatLng(startingPoint.lat, startingPoint.lng), new google.maps.LatLng(checkin.lat, checkin.lng)], %>
+      path: checkin
       strokeColor: '#FF0000'
       strokeOpacity: 1.0
       strokeWeight: 2)
+      <%# marker = new (google.maps.Marker)(position: lastCheckin, map: map) %>
     flightPath.setMap map
 
-    setTimeout(getCurrentLocation, 5000)
+    setTimeout(getCurrentLocation, 50000)
     return
 
   <%# function for updating the database with the user's current location %>
@@ -122,11 +133,13 @@ $(document).ready =>
     initMap()
 
   <%# subscribe Pusher client %>
+  Pusher.logToConsole = true
   pusher = new Pusher('<%= ENV["PUSHER_KEY"] %>',
     cluster: '<%= ENV["PUSHER_CLUSTER"] %>'
     encrypted: true)
   channel = pusher.subscribe('location')
   channel.bind 'new', (data) ->
-    updateMap data
+    console.log makeNum(data.checkins)
+    updateMap makeNum(data.checkins)
     return
   return
