@@ -5,6 +5,8 @@
 $(document).ready =>
   tripId = ''
   startingPoint = {}
+  isOwner = false
+  map = null
 
   <%# function for converting coordinates to numbers %>
   makeNum = (arr) ->
@@ -13,9 +15,10 @@ $(document).ready =>
       arr.lng = Number(arr.lng)
       return
     arr
-
+  
   <%# function for creating a new trip %>
   saveTrip = (positionData) ->
+    isOwner = true
     token = $('meta[name="csrf-token"]').attr('content')
     $.ajax
       url: '/trips'
@@ -35,7 +38,7 @@ $(document).ready =>
         getCurrentLocation()
         return
     return
-
+  
   <%# function for getting the user's location at the begining of the trip %>
   getLocation = (name) ->
     if navigator.geolocation
@@ -49,7 +52,7 @@ $(document).ready =>
         startingPoint = data
         saveTrip data
     return
-
+  
   <%# function for rendering the map %>
   initMap = ->
     center = 
@@ -65,7 +68,6 @@ $(document).ready =>
   
   <%# function for updating the map with the user's current location %>
   updateMap = (checkin) ->
-    console.log checkin
     lastCheckin = checkin[checkin.length - 1]
     center = 
       lat: startingPoint.lat
@@ -76,19 +78,18 @@ $(document).ready =>
     marker = new (google.maps.Marker)(
       position: lastCheckin
       map: map)
-
     flightPath = new (google.maps.Polyline)(
-      <%# path: [new google.maps.LatLng(startingPoint.lat, startingPoint.lng), new google.maps.LatLng(checkin.lat, checkin.lng)], %>
       path: checkin
       strokeColor: '#FF0000'
       strokeOpacity: 1.0
       strokeWeight: 2)
-      <%# marker = new (google.maps.Marker)(position: lastCheckin, map: map) %>
     flightPath.setMap map
+    <%# you can loop through the locations and show a marker for each location %>
 
-    setTimeout(getCurrentLocation, 5000)
+    if isOwner
+      setTimeout(getCurrentLocation, 5000)
     return
-
+  
   <%# function for updating the database with the user's current location %>
   updateCurrentLocation = (tripData, id) ->
     token = $('meta[name="csrf-token"]').attr('content')
@@ -102,7 +103,7 @@ $(document).ready =>
       success: (response) ->
         return
     return
-
+  
   <%# function for finding the user's current location %>
   getCurrentLocation = ->
     navigator.geolocation.getCurrentPosition (position) ->
@@ -112,9 +113,9 @@ $(document).ready =>
       updateCurrentLocation(data, tripId)
     return
 
-
   <%# run this block of code if we're on the homepage %>
   unless location.pathname.startsWith('/trips')
+    <%# when a user submits their name, get their name and call the function to get their location %>
     $('.name-form').on 'submit', (event) ->
       event.preventDefault()
       formData = $(this).serialize()
@@ -131,15 +132,13 @@ $(document).ready =>
       lng: Number(showLng)
     startingPoint = data
     initMap()
-
+    
   <%# subscribe Pusher client %>
-  Pusher.logToConsole = true
   pusher = new Pusher('<%= ENV["PUSHER_KEY"] %>',
     cluster: '<%= ENV["PUSHER_CLUSTER"] %>'
     encrypted: true)
   channel = pusher.subscribe('location')
   channel.bind 'new', (data) ->
-    console.log makeNum(data.checkins)
     updateMap makeNum(data.checkins)
     return
   return
