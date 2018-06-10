@@ -3,6 +3,8 @@ Build a realtime location sharing app with Ruby on Rails and Pusher Channels
 
 A tutorial to showcase realtime functionality of Pusher Channels in Ruby
 
+[View tutorial](https://pusher.com/tutorials/location-ruby-rails-googlemaps)
+
 
 Getting Started
 ------
